@@ -2,6 +2,35 @@
   "name": "@azure/msal-node",
   "entries": [
     {
+      "date": "Tue, 28 Nov 2023 22:45:25 GMT",
+      "version": "2.6.0",
+      "tag": "@azure/msal-node_v2.6.0",
+      "comments": {
+        "patch": [
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-node",
+            "commit": "58f167e39de7d2d9fb1d922bf6c455064bc19f46",
+            "comment": "Turn on return-await lint rule #6678"
+          }
+        ],
+        "minor": [
+          {
+            "author": "trwalke@microsoft.com",
+            "package": "@azure/msal-node",
+            "commit": "a274857a16d9f765b35254ee390e5ca194aefed0",
+            "comment": "Adding logging to make regional scenarios more clear"
+          },
+          {
+            "author": "beachball",
+            "package": "@azure/msal-node",
+            "comment": "Bump @azure/msal-common to v14.4.1",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Nov 2023 20:59:07 GMT",
       "version": "2.5.1",
       "tag": "@azure/msal-node_v2.5.1",

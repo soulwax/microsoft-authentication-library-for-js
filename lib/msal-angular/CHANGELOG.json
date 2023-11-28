@@ -2,6 +2,29 @@
   "name": "@azure/msal-angular",
   "entries": [
     {
+      "date": "Tue, 28 Nov 2023 22:45:25 GMT",
+      "version": "3.0.9",
+      "tag": "@azure/msal-angular_v3.0.9",
+      "comments": {
+        "none": [
+          {
+            "author": "hemoral@microsoft.com",
+            "package": "@azure/msal-angular",
+            "commit": "77c626b23389f7c7044cfe69efbdf3fbd5a074e9",
+            "comment": "Version bump automation enhancements #6725"
+          }
+        ],
+        "patch": [
+          {
+            "author": "beachball",
+            "package": "@azure/msal-angular",
+            "comment": "Bump @azure/msal-browser to v3.6.0",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Nov 2023 00:01:51 GMT",
       "version": "3.0.8",
       "tag": "@azure/msal-angular_v3.0.8",

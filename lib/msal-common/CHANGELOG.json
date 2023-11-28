@@ -2,6 +2,27 @@
   "name": "@azure/msal-common",
   "entries": [
     {
+      "date": "Tue, 28 Nov 2023 22:45:25 GMT",
+      "version": "14.4.1",
+      "tag": "@azure/msal-common_v14.4.1",
+      "comments": {
+        "patch": [
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-common",
+            "commit": "58f167e39de7d2d9fb1d922bf6c455064bc19f46",
+            "comment": "Turn on return-await lint rule #6678"
+          },
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-common",
+            "commit": "1398c679873833417c0e118e2b95cd8cf8017005",
+            "comment": "Move AADServerParamKeys to individual exports #6701"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Nov 2023 00:01:50 GMT",
       "version": "14.4.0",
       "tag": "@azure/msal-common_v14.4.0",

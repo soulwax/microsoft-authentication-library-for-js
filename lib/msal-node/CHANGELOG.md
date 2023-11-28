@@ -1,8 +1,21 @@
 # Change Log - @azure/msal-node
 
-This log was last generated on Tue, 07 Nov 2023 20:59:07 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Nov 2023 22:45:25 GMT and should not be manually modified.
 
 <!-- Start content -->
+
+## 2.6.0
+
+Tue, 28 Nov 2023 22:45:25 GMT
+
+### Minor changes
+
+- Adding logging to make regional scenarios more clear (trwalke@microsoft.com)
+- Bump @azure/msal-common to v14.4.1
+
+### Patches
+
+- Turn on return-await lint rule #6678 (thomas.norling@microsoft.com)
 
 ## 2.5.1
 

@@ -1,8 +1,17 @@
 # Change Log - @azure/msal-common
 
-This log was last generated on Tue, 07 Nov 2023 00:01:50 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Nov 2023 22:45:25 GMT and should not be manually modified.
 
 <!-- Start content -->
+
+## 14.4.1
+
+Tue, 28 Nov 2023 22:45:25 GMT
+
+### Patches
+
+- Turn on return-await lint rule #6678 (thomas.norling@microsoft.com)
+- Move AADServerParamKeys to individual exports #6701 (thomas.norling@microsoft.com)
 
 ## 14.4.0
 

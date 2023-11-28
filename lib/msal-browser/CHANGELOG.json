@@ -2,6 +2,59 @@
   "name": "@azure/msal-browser",
   "entries": [
     {
+      "date": "Tue, 28 Nov 2023 22:45:25 GMT",
+      "version": "3.6.0",
+      "tag": "@azure/msal-browser_v3.6.0",
+      "comments": {
+        "patch": [
+          {
+            "author": "dasau@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "6ac9a88f28c119362be6d3f981b0503b2297f451",
+            "comment": "Nested App Auth minor fixes (#6672)"
+          },
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "70ab381446cf45f42b70f2ad3c59560783e6a627",
+            "comment": "Performance optimization when creating hidden iframe"
+          },
+          {
+            "author": "dasau@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "8068ac08fbccae2f9c93ea1a2d692f5d91e1f085",
+            "comment": "Nested App Auth fix for Android response (#6707)"
+          },
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "d14178b5d9ac4aadfc15015429bde177c0bd83c7",
+            "comment": "Fix logoutPopup request type"
+          },
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "58f167e39de7d2d9fb1d922bf6c455064bc19f46",
+            "comment": "Fix bug causing temporary cache not to be cleared #6676"
+          }
+        ],
+        "minor": [
+          {
+            "author": "hemoral@microsoft.com",
+            "package": "@azure/msal-browser",
+            "commit": "aa5296d3fadef68a357556c604bab2394267f185",
+            "comment": "Increase default iframe timout to 10s #6700"
+          },
+          {
+            "author": "beachball",
+            "package": "@azure/msal-browser",
+            "comment": "Bump @azure/msal-common to v14.4.1",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Nov 2023 00:01:50 GMT",
       "version": "3.5.0",
       "tag": "@azure/msal-browser_v3.5.0",

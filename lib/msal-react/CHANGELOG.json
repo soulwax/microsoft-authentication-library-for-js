@@ -2,6 +2,27 @@
   "name": "@azure/msal-react",
   "entries": [
     {
+      "date": "Tue, 28 Nov 2023 22:45:26 GMT",
+      "version": "2.0.8",
+      "tag": "@azure/msal-react_v2.0.8",
+      "comments": {
+        "patch": [
+          {
+            "author": "thomas.norling@microsoft.com",
+            "package": "@azure/msal-react",
+            "commit": "34c460d88f84263fe931d964860a30ddf4a1d981",
+            "comment": "Move build dependencies to devDependencies"
+          },
+          {
+            "author": "beachball",
+            "package": "@azure/msal-react",
+            "comment": "Bump @azure/msal-browser to v3.6.0",
+            "commit": "not available"
+          }
+        ]
+      }
+    },
+    {
       "date": "Tue, 07 Nov 2023 00:01:51 GMT",
       "version": "2.0.7",
       "tag": "@azure/msal-react_v2.0.7",

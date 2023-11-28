@@ -1,8 +1,17 @@
 # Change Log - @azure/msal-node-extensions
 
-This log was last generated on Tue, 07 Nov 2023 00:01:50 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Nov 2023 22:45:26 GMT and should not be manually modified.
 
 <!-- Start content -->
+
+## 1.0.8
+
+Tue, 28 Nov 2023 22:45:26 GMT
+
+### Patches
+
+- add Node 16 to engines (thomas.norling@microsoft.com)
+- Bump @azure/msal-common to v14.4.1
 
 ## 1.0.7
 
