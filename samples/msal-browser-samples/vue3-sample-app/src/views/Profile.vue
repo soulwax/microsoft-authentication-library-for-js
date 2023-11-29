@@ -1,5 +1,7 @@
 <template>
+  <el-button @click="console.log(state.data)">Debug info</el-button>
   <div v-if="state.resolved">
+    <h1>Profile</h1>
 	<p>Name: {{ state.data.displayName }}</p>
 	<p>Title: {{ state.data.jobTitle }}</p>
 	<p>Mail: {{ state.data.mail }}</p>
@@ -23,6 +25,10 @@ const state = reactive({
 	data: {} as UserInfo
 });
 
+function getState() {
+    return state;
+}
+
 async function getGraphData() {
     const response = await instance.acquireTokenSilent({
         ...loginRequest
@@ -42,6 +48,7 @@ async function getGraphData() {
 
 onMounted(() => {
 	getGraphData();
+    console.log(getState());
 });
 
 const stopWatcher = watch(inProgress, () => {
