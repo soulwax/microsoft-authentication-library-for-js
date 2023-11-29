@@ -135,6 +135,10 @@ describe("RedirectClient", () => {
             NavigationClient.prototype,
             "navigateExternal"
         ).mockResolvedValue(true);
+        jest.spyOn(
+            NavigationClient.prototype,
+            "navigateInternal"
+        ).mockResolvedValue(true);
 
         // @ts-ignore
         browserStorage = pca.browserStorage;
@@ -200,18 +204,17 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.REQUEST_STATE}.${stateId}`,
                 TEST_STATE_VALUES.TEST_STATE_REDIRECT
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"getRedirectResponseHash")
-                .returns(TEST_HASHES.TEST_SUCCESS_HASH_NO_STATE);
-            redirectClient.handleRedirectPromise().then((response) => {
-                expect(response).toBe(null);
-                expect(window.localStorage.length).toEqual(0);
-                expect(window.sessionStorage.length).toEqual(0);
-                done();
-            });
+            redirectClient
+                .handleRedirectPromise("#code=ThisIsAnAuthCode")
+                .then((response) => {
+                    expect(response).toBe(null);
+                    expect(window.localStorage.length).toEqual(0);
+                    expect(window.sessionStorage.length).toEqual(0);
+                    done();
+                });
         });
 
-        it("cleans temporary cache and return null if state is wrong interaction type", (done) => {
+        it("If response hash is not a Redirect response cleans temporary cache, return null and don't remove hash", (done) => {
             browserStorage.setInteractionInProgress(true);
             const stateString = TEST_STATE_VALUES.TEST_STATE_REDIRECT;
             const browserCrypto = new CryptoOps(new Logger({}));
@@ -223,13 +226,14 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.REQUEST_STATE}.${stateId}`,
                 TEST_STATE_VALUES.TEST_STATE_REDIRECT
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"getRedirectResponseHash")
-                .returns(TEST_HASHES.TEST_SUCCESS_CODE_HASH_POPUP);
+            window.location.hash = TEST_HASHES.TEST_SUCCESS_CODE_HASH_POPUP;
             redirectClient.handleRedirectPromise().then((response) => {
                 expect(response).toBe(null);
                 expect(window.localStorage.length).toEqual(0);
                 expect(window.sessionStorage.length).toEqual(0);
+                expect(window.location.hash).toEqual(
+                    TEST_HASHES.TEST_SUCCESS_CODE_HASH_POPUP
+                );
                 done();
             });
         });
@@ -250,9 +254,12 @@ describe("RedirectClient", () => {
                 "Unexpected error!",
                 "Unexpected error"
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"getRedirectResponseHash")
-                .throws(testError);
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"getRedirectResponse"
+            ).mockImplementation(() => {
+                throw testError;
+            });
             redirectClient.handleRedirectPromise().catch((e) => {
                 expect(e).toMatchObject(testError);
                 expect(window.localStorage.length).toEqual(0);
@@ -273,16 +280,142 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.REQUEST_STATE}.${stateId}`,
                 TEST_STATE_VALUES.TEST_STATE_REDIRECT
             );
-            //sinon.stub(BrowserProtocolUtils, "extractBrowserRequestState").returns(null);
-            sinon
-                .stub(RedirectClient.prototype, <any>"getRedirectResponseHash")
-                .returns(TEST_HASHES.TEST_SUCCESS_HASH_STATE_NO_META);
-            redirectClient.handleRedirectPromise().then((response) => {
-                expect(response).toBe(null);
-                expect(window.localStorage.length).toEqual(0);
-                expect(window.sessionStorage.length).toEqual(0);
-                done();
-            });
+            redirectClient
+                .handleRedirectPromise(
+                    TEST_HASHES.TEST_SUCCESS_HASH_STATE_NO_META
+                )
+                .then((response) => {
+                    expect(response).toBe(null);
+                    expect(window.localStorage.length).toEqual(0);
+                    expect(window.sessionStorage.length).toEqual(0);
+                    done();
+                });
+        });
+
+        it("cleans temporary cache and re-throws error thrown by handleResponse when loginRequestUrl == current url", (done) => {
+            browserStorage.setInteractionInProgress(true);
+            browserStorage.setTemporaryCache(
+                TemporaryCacheKeys.ORIGIN_URI,
+                window.location.href,
+                true
+            );
+            const statekey = browserStorage.generateStateKey(
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT
+            );
+            browserStorage.setTemporaryCache(
+                statekey,
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                true
+            );
+
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockRejectedValue("Error in handleResponse");
+            redirectClient
+                .handleRedirectPromise(
+                    TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
+                )
+                .catch((e) => {
+                    expect(e).toEqual("Error in handleResponse");
+                    expect(window.localStorage.length).toEqual(0);
+                    expect(window.sessionStorage.length).toEqual(0);
+                    done();
+                });
+        });
+
+        it("cleans temporary cache and re-throws error thrown by handleResponse after clientside navigation to loginRequestUrl", (done) => {
+            jest.spyOn(
+                NavigationClient.prototype,
+                "navigateInternal"
+            ).mockResolvedValue(false); // Client-side navigation
+
+            browserStorage.setInteractionInProgress(true);
+            browserStorage.setTemporaryCache(
+                TemporaryCacheKeys.ORIGIN_URI,
+                window.location.href + "/differentPath",
+                true
+            );
+            const statekey = browserStorage.generateStateKey(
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT
+            );
+            browserStorage.setTemporaryCache(
+                statekey,
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                true
+            );
+
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockRejectedValue("Error in handleResponse");
+            redirectClient
+                .handleRedirectPromise(
+                    TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
+                )
+                .catch((e) => {
+                    expect(e).toEqual("Error in handleResponse");
+                    expect(window.localStorage.length).toEqual(0);
+                    expect(window.sessionStorage.length).toEqual(0);
+                    done();
+                });
+        });
+
+        it("cleans temporary cache and re-throws error thrown by handleResponse when navigateToLoginRequestUrl is false", (done) => {
+            browserStorage.setInteractionInProgress(true);
+            browserStorage.setTemporaryCache(
+                TemporaryCacheKeys.ORIGIN_URI,
+                window.location.href + "/differentPath",
+                true
+            );
+            const statekey = browserStorage.generateStateKey(
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT
+            );
+            browserStorage.setTemporaryCache(
+                statekey,
+                TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                true
+            );
+
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockRejectedValue("Error in handleResponse");
+            redirectClient = // @ts-ignore
+                redirectClient = new RedirectClient(
+                    {
+                        // @ts-ignore
+                        ...pca.config,
+                        auth: {
+                            // @ts-ignore
+                            ...pca.config.auth,
+                            navigateToLoginRequestUrl: false,
+                        },
+                    },
+                    browserStorage,
+                    //@ts-ignore
+                    pca.browserCrypto,
+                    //@ts-ignore
+                    pca.logger,
+                    //@ts-ignore
+                    pca.eventHandler,
+                    //@ts-ignore
+                    pca.navigationClient,
+                    //@ts-ignore
+                    pca.performanceClient,
+                    //@ts-ignore
+                    pca.nativeInternalStorage
+                );
+            redirectClient
+                .handleRedirectPromise(
+                    TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
+                )
+                .catch((e) => {
+                    expect(e).toEqual("Error in handleResponse");
+                    expect(window.localStorage.length).toEqual(0);
+                    expect(window.sessionStorage.length).toEqual(0);
+                    done();
+                });
         });
 
         it("gets hash from cache and processes response", async () => {
@@ -1545,13 +1678,16 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.ORIGIN_URI}`,
                 loginRequestUrl
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"handleHash")
-                .callsFake((responseHash) => {
-                    expect(responseHash).toEqual(
-                        TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
-                    );
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockImplementation((response) => {
+                expect(response).toEqual({
+                    code: "thisIsATestCode",
+                    state: TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                    client_info: TEST_DATA_CLIENT_INFO.TEST_RAW_CLIENT_INFO,
                 });
+            });
             redirectClient.handleRedirectPromise().then(() => {
                 expect(window.location.href).toEqual(loginRequestUrl);
             });
@@ -1564,13 +1700,16 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.ORIGIN_URI}`,
                 loginRequestUrl
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"handleHash")
-                .callsFake((responseHash) => {
-                    expect(responseHash).toEqual(
-                        TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
-                    );
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockImplementation((response) => {
+                expect(response).toEqual({
+                    code: "thisIsATestCode",
+                    state: TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                    client_info: TEST_DATA_CLIENT_INFO.TEST_RAW_CLIENT_INFO,
                 });
+            });
             redirectClient
                 .handleRedirectPromise(
                     TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
@@ -1594,13 +1733,16 @@ describe("RedirectClient", () => {
             window.location.hash = "testHash";
             const clearHashSpy = sinon.spy(BrowserUtils, "clearHash");
 
-            sinon
-                .stub(RedirectClient.prototype, <any>"handleHash")
-                .callsFake((responseHash) => {
-                    expect(responseHash).toEqual(
-                        TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
-                    );
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockImplementation((response) => {
+                expect(response).toEqual({
+                    code: "thisIsATestCode",
+                    state: TEST_STATE_VALUES.TEST_STATE_REDIRECT,
+                    client_info: TEST_DATA_CLIENT_INFO.TEST_RAW_CLIENT_INFO,
                 });
+            });
 
             redirectClient.handleRedirectPromise().then(() => {
                 expect(clearHashSpy.notCalled).toBe(true);
@@ -1618,14 +1760,17 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.ORIGIN_URI}`,
                 loginRequestUrl
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"handleHash")
-                .callsFake((responseHash) => {
-                    expect(responseHash).toEqual(
-                        TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
-                    );
-                    done();
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockImplementation((response) => {
+                expect(response).toEqual({
+                    code: "thisIsATestCode",
+                    client_info: TEST_DATA_CLIENT_INFO.TEST_RAW_CLIENT_INFO,
+                    state: TEST_STATE_VALUES.TEST_STATE_REDIRECT,
                 });
+                done();
+            });
             redirectClient.handleRedirectPromise();
         });
 
@@ -1683,15 +1828,18 @@ describe("RedirectClient", () => {
                 `${Constants.CACHE_PREFIX}.${TEST_CONFIG.MSAL_CLIENT_ID}.${TemporaryCacheKeys.ORIGIN_URI}`,
                 loginRequestUrl
             );
-            sinon
-                .stub(RedirectClient.prototype, <any>"handleHash")
-                .callsFake((responseHash) => {
-                    expect(window.location.href).not.toContain("#testHash");
-                    expect(responseHash).toEqual(
-                        TEST_HASHES.TEST_SUCCESS_CODE_HASH_REDIRECT
-                    );
-                    done();
+            jest.spyOn(
+                RedirectClient.prototype,
+                <any>"handleResponse"
+            ).mockImplementation((response) => {
+                expect(window.location.href).not.toContain("#testHash");
+                expect(response).toEqual({
+                    code: "thisIsATestCode",
+                    client_info: TEST_DATA_CLIENT_INFO.TEST_RAW_CLIENT_INFO,
+                    state: TEST_STATE_VALUES.TEST_STATE_REDIRECT,
                 });
+                done();
+            });
             redirectClient.handleRedirectPromise();
         });
     });

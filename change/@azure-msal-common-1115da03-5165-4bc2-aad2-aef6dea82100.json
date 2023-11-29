@@ -1,6 +1,6 @@
 {
-  "type": "minor",
-  "comment": "Convert ServerTelemetryEntity to Type instead of Class #6651",
+  "type": "patch",
+  "comment": "Turn on return-await lint rule #6678",
   "packageName": "@azure/msal-common",
   "email": "thomas.norling@microsoft.com",
   "dependentChangeType": "patch"
